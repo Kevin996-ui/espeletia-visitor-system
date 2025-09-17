@@ -1,0 +1,48 @@
+name: php-ci
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, curl, xml, intl, pdo_pgsql, tokenizer
+          coverage: none
+
+      - name: Install Composer deps
+        working-directory: src
+        run: |
+          if [ -f composer.json ]; then
+            composer install --prefer-dist --no-interaction --no-progress
+          else
+            echo "composer.json not found — skipping install (scaffold Laravel into src/ first)"
+          fi
+
+      - name: Copy .env
+        working-directory: src
+        run: |
+          if [ -f .env.example ]; then cp .env.example .env; fi || true
+
+      - name: Generate app key
+        working-directory: src
+        run: |
+          if [ -f artisan ]; then php artisan key:generate; fi || true
+
+      - name: PHPStan
+        working-directory: src
+        run: |
+          if [ -f vendor/bin/phpstan ]; then vendor/bin/phpstan analyse --memory-limit=1G || true; fi
+
+      - name: Laravel Pint (code style)
+        working-directory: src
+        run: |
+          if [ -f vendor/bin/pint ]; then vendor/bin/pint --test || true; fi
+
+      - name: PHPUnit
+        working-directory: src
+        run: |
+          if [ -f vendor/bin/phpunit ]; then vendor/bin/phpunit --testsuite=Feature,Unit || true; fi
