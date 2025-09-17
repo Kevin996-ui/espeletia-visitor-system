@@ -94,14 +94,6 @@ scripts/
 docker-compose.yml
 .env.example
 ```
-
-## 🖼 Screenshots
-Place images in `docs/assets/` and embed them here, for example:
-```
-![Dashboard](docs/assets/dashboard.png)
-![Visitors Table](docs/assets/visitors-table.png)
-```
-
 ## 🗺 Roadmap (suggestions)
 - Seeders with **sample roles/users** for easy demo
 - Policies/Permissions (Gate) per module
